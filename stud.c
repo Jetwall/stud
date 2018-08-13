@@ -1750,27 +1750,18 @@ void daemonize () {
         exit(0);
     }
 
-    /* close standard streams */
-    fclose(stdin);
-    fclose(stdout);
-    fclose(stderr);
+    /* close standard fds */
+    close(0);
+    close(1);
+    close(2);
 
-    /* reopen standard streams to null device */
-    stdin = fopen(NULL_DEV, "r");
-    if (stdin == NULL) {
-        ERR("Unable to reopen stdin to %s: %s\n", NULL_DEV, strerror(errno));
-        exit(1);
+    if (open("/dev/null", O_RDWR) != 0) {
+       syslog(LOG_ERR, "Unable to open /dev/null: %s", strerror(errno));
+       exit(1);
     }
-    stdout = fopen(NULL_DEV, "w");
-    if (stdout == NULL) {
-        ERR("Unable to reopen stdout to %s: %s\n", NULL_DEV, strerror(errno));
-        exit(1);
-    }
-    stderr = fopen(NULL_DEV, "w");
-    if (stderr == NULL) {
-        ERR("Unable to reopen stderr to %s: %s\n", NULL_DEV, strerror(errno));
-        exit(1);
-    }
+
+    dup(0);
+    dup(0);
 
     /* this is child, the new master */
     pid_t s = setsid();
