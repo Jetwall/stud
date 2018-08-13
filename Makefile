@@ -8,7 +8,12 @@ BINDIR  = $(PREFIX)/bin
 MANDIR  = $(PREFIX)/share/man
 
 CFLAGS  = -O2 -g -std=c99 -fno-strict-aliasing -Wall -W -D_GNU_SOURCE -I/usr/local/include
+
+ifeq ($(ENABLE_STATIC),1)
+LDFLAGS = -static -lssl -lcrypto -lev -lz -ldl -lm -L/usr/local/lib
+else
 LDFLAGS = -lssl -lcrypto -lev -L/usr/local/lib
+endif
 OBJS    = stud.o ringbuffer.o configuration.o
 
 all: realall
